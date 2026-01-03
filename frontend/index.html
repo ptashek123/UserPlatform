@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .link a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .profile-container {
+            max-width: 600px;
+        }
+
+        .profile-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .profile-info p {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .profile-info strong {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Page -->
+    <div id="home-page" class="container">
+        <h1 id="welcome-title">Добро пожаловать в платформу</h1>
+        <p class="subtitle">Система управления пользователями</p>
+        <div class="link">
+            <a href="#" onclick="showLogin(); return false;">Вход в систему</a> | 
+            <a href="#" onclick="showRegister(); return false;">Регистрация</a>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="container hidden">
+        <h1 id="login-title">Вход в систему</h1>
+        <div class="error" id="login-error"></div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-username">Логин:</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Пароль:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit">Войти</button>
+        </form>
+        <div class="link">
+            <a href="#" onclick="showHome(); return false;">На главную</a> | 
+            <a href="#" onclick="showRegister(); return false;">Регистрация</a>
+        </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="register-page" class="container hidden">
+        <h1 id="register-title">Регистрация</h1>
+        <div class="error" id="register-error"></div>
+        <div class="success" id="register-success"></div>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="register-username">Логин:</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-email">Email:</label>
+                <input type="email" id="register-email">
+            </div>
+            <div class="form-group">
+                <label for="register-password">Пароль:</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <div class="link">
+            <a href="#" onclick="showHome(); return false;">На главную</a> | 
+            <a href="#" onclick="showLogin(); return false;">Вход</a>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="container profile-container hidden">
+        <h1>Личный кабинет</h1>
+        <div class="error" id="profile-error"></div>
+        <div id="profile-info" class="profile-info">
+            <p><strong>ID:</strong> <span id="profile-id"></span></p>
+            <p><strong>Логин:</strong> <span id="profile-username"></span></p>
+            <p><strong>Email:</strong> <span id="profile-email"></span></p>
+            <p><strong>Статус:</strong> <span id="profile-status"></span></p>
+            <p><strong>Дата регистрации:</strong> <span id="profile-created"></span></p>
+        </div>
+        <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let authToken = localStorage.getItem('authToken');
+
+        // Load UI config from ConfigMap
+        async function loadUIConfig() {
+            try {
+                // In real scenario, this would come from ConfigMap via API
+                // For demo, we'll use default values
+                const config = {
+                    LOGIN_TITLE: 'Вход в систему',
+                    REGISTER_TITLE: 'Регистрация',
+                    WELCOME_MESSAGE: 'Добро пожаловать в платформу'
+                };
+                
+                document.getElementById('login-title').textContent = config.LOGIN_TITLE;
+                document.getElementById('register-title').textContent = config.REGISTER_TITLE;
+                document.getElementById('welcome-title').textContent = config.WELCOME_MESSAGE;
+            } catch (e) {
+                console.error('Failed to load UI config:', e);
+            }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.container').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function showHome() {
+            showPage('home-page');
+        }
+
+        function showLogin() {
+            showPage('login-page');
+            document.getElementById('login-error').classList.remove('show');
+        }
+
+        function showRegister() {
+            showPage('register-page');
+            document.getElementById('register-error').classList.remove('show');
+            document.getElementById('register-success').classList.remove('show');
+        }
+
+        function showProfile() {
+            showPage('profile-page');
+            loadProfile();
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).classList.remove('show');
+        }
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('login-error');
+
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    showProfile();
+                } else {
+                    showError('login-error', data.error || 'Ошибка входа');
+                }
+            } catch (error) {
+                showError('login-error', 'Ошибка соединения с сервером');
+            }
+        });
+
+        // Register
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError('register-error');
+            document.getElementById('register-success').classList.remove('show');
+
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('register-success').textContent = 'Регистрация успешна! Теперь вы можете войти.';
+                    document.getElementById('register-success').classList.add('show');
+                    setTimeout(() => {
+                        showLogin();
+                    }, 2000);
+                } else {
+                    showError('register-error', data.error || 'Ошибка регистрации');
+                }
+            } catch (error) {
+                showError('register-error', 'Ошибка соединения с сервером');
+            }
+        });
+
+        // Load Profile
+        async function loadProfile() {
+            hideError('profile-error');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('profile-id').textContent = data.id;
+                    document.getElementById('profile-username').textContent = data.username;
+                    document.getElementById('profile-email').textContent = data.email || 'Не указан';
+                    document.getElementById('profile-status').textContent = data.status;
+                    document.getElementById('profile-created').textContent = new Date(data.created_at).toLocaleString('ru-RU');
+                } else {
+                    if (response.status === 401) {
+                        logout();
+                    } else {
+                        showError('profile-error', data.error || 'Ошибка загрузки профиля');
+                    }
+                }
+            } catch (error) {
+                showError('profile-error', 'Ошибка соединения с сервером');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            localStorage.removeItem('authToken');
+            showHome();
+        }
+
+        // Check if user is already logged in
+        if (authToken) {
+            showProfile();
+        } else {
+            showHome();
+        }
+
+        // Load UI config on page load
+        loadUIConfig();
+    </script>
+</body>
+</html>
+
