@@ -129,7 +129,7 @@
         }
 
         .profile-container {
-            max-width: 600px;
+            max-width: 800px;
         }
 
         .profile-info {
@@ -146,6 +146,65 @@
 
         .profile-info strong {
             color: #667eea;
+        }
+
+        .service-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .service-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .service-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+
+        .service-btn:hover {
+            background: #5568d3;
+        }
+
+        .service-btn:active {
+            transform: translateY(1px);
+        }
+
+        .service-result {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #e0e0e0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .service-result.loading {
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .service-result.error {
+            color: #c33;
+            background: #fee;
         }
 
         .logout-btn {
@@ -220,13 +279,34 @@
     <div id="profile-page" class="container profile-container hidden">
         <h1>Личный кабинет</h1>
         <div class="error" id="profile-error"></div>
+        
+        <!-- Profile Service -->
         <div id="profile-info" class="profile-info">
+            <h3 style="color: #667eea; margin-bottom: 15px;">Profile Service</h3>
             <p><strong>ID:</strong> <span id="profile-id"></span></p>
             <p><strong>Логин:</strong> <span id="profile-username"></span></p>
             <p><strong>Email:</strong> <span id="profile-email"></span></p>
             <p><strong>Статус:</strong> <span id="profile-status"></span></p>
             <p><strong>Дата регистрации:</strong> <span id="profile-created"></span></p>
+            <button class="service-btn" onclick="loadProfile()">Обновить профиль</button>
         </div>
+
+        <!-- Notification Service -->
+        <div class="service-section">
+            <h3>Notification Service</h3>
+            <button class="service-btn" onclick="loadNotifications()">Получить уведомления</button>
+            <button class="service-btn" onclick="sendTestNotification()">Отправить тестовое уведомление</button>
+            <div id="notifications-result" class="service-result hidden"></div>
+        </div>
+
+        <!-- Report Service -->
+        <div class="service-section">
+            <h3>Report Service</h3>
+            <button class="service-btn" onclick="listReports()">Список отчетов</button>
+            <button class="service-btn" onclick="generateReport()">Сгенерировать отчет</button>
+            <div id="reports-result" class="service-result hidden"></div>
+        </div>
+
         <button class="logout-btn" onclick="logout()">Выйти</button>
     </div>
 
@@ -384,6 +464,132 @@
                 }
             } catch (error) {
                 showError('profile-error', 'Ошибка соединения с сервером');
+            }
+        }
+
+        // Load Notifications
+        async function loadNotifications() {
+            const resultEl = document.getElementById('notifications-result');
+            resultEl.classList.remove('hidden', 'error');
+            resultEl.classList.add('loading');
+            resultEl.textContent = 'Загрузка уведомлений...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notifications`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultEl.classList.remove('loading');
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultEl.classList.add('error');
+                    resultEl.textContent = `Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+                }
+            } catch (error) {
+                resultEl.classList.add('error');
+                resultEl.textContent = `Ошибка соединения: ${error.message}`;
+            }
+        }
+
+        // Send Test Notification
+        async function sendTestNotification() {
+            const resultEl = document.getElementById('notifications-result');
+            resultEl.classList.remove('hidden', 'error');
+            resultEl.classList.add('loading');
+            resultEl.textContent = 'Отправка уведомления...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/notifications/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 1,
+                        message: 'Тестовое уведомление от ' + new Date().toLocaleString('ru-RU')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultEl.classList.remove('loading');
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultEl.classList.add('error');
+                    resultEl.textContent = `Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+                }
+            } catch (error) {
+                resultEl.classList.add('error');
+                resultEl.textContent = `Ошибка соединения: ${error.message}`;
+            }
+        }
+
+        // List Reports
+        async function listReports() {
+            const resultEl = document.getElementById('reports-result');
+            resultEl.classList.remove('hidden', 'error');
+            resultEl.classList.add('loading');
+            resultEl.textContent = 'Загрузка списка отчетов...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/list`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultEl.classList.remove('loading');
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultEl.classList.add('error');
+                    resultEl.textContent = `Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+                }
+            } catch (error) {
+                resultEl.classList.add('error');
+                resultEl.textContent = `Ошибка соединения: ${error.message}`;
+            }
+        }
+
+        // Generate Report
+        async function generateReport() {
+            const resultEl = document.getElementById('reports-result');
+            resultEl.classList.remove('hidden', 'error');
+            resultEl.classList.add('loading');
+            resultEl.textContent = 'Генерация отчета...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'user_stats'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultEl.classList.remove('loading');
+                    resultEl.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultEl.classList.add('error');
+                    resultEl.textContent = `Ошибка: ${data.error || 'Неизвестная ошибка'}`;
+                }
+            } catch (error) {
+                resultEl.classList.add('error');
+                resultEl.textContent = `Ошибка соединения: ${error.message}`;
             }
         }
 
