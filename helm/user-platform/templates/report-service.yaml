@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-platform
+    component: report-service
+spec:
+  replicas: {{ .Values.replicas.reportService }}
+  selector:
+    matchLabels:
+      app: user-platform
+      component: report-service
+  template:
+    metadata:
+      labels:
+        app: user-platform
+        component: report-service
+    spec:
+      containers:
+        - name: report-service
+          image: report-service:{{ .Values.imageVersions.reportService }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8004
+          env:
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: {{ .Values.database.name | quote }}
+            - name: DB_USER
+              value: {{ .Values.database.user | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwt-secret
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8004
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8004
+            initialDelaySeconds: {{ .Values.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.periodSeconds }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-platform
+    component: report-service
+spec:
+  type: {{ .Values.services.reportService.type }}
+  ports:
+    - port: {{ .Values.services.reportService.port }}
+      targetPort: 8004
+      protocol: TCP
+  selector:
+    app: user-platform
+    component: report-service

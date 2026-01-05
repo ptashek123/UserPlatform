@@ -1,0 +1,75 @@
+namespace: user-platform
+
+imageVersions:
+  authService: "latest"
+  profileService: "latest"
+  notificationService: "latest"
+  reportService: "latest"
+  frontend: "latest"
+  postgres: "15-alpine"
+
+replicas:
+  authService: 2
+  profileService: 2
+  notificationService: 2
+  reportService: 2
+  frontend: 2
+  postgres: 1
+
+database:
+  name: "userplatform"
+  user: "postgres"
+  password: "postgres123"
+
+jwtSecret: "my-super-secret-key"
+
+uiConfig:
+  LOGIN_TITLE: "Вход в систему"
+  REGISTER_TITLE: "Регистрация"
+  WELCOME_MESSAGE: "Добро пожаловать в платформу"
+
+cronJobs:
+  dailyStats:
+    schedule: "0 2 * * *"
+  notificationSender:
+    schedule: "0 9 * * *"
+    concurrencyPolicy: "Forbid"
+  dataCleanup:
+    schedule: "0 0 * * 0"
+
+services:
+  frontend:
+    type: "NodePort"
+    nodePort: 30080
+  authService:
+    type: "ClusterIP"
+    port: 8001
+  profileService:
+    type: "ClusterIP"
+    port: 8002
+  notificationService:
+    type: "ClusterIP"
+    port: 8003
+  reportService:
+    type: "ClusterIP"
+    port: 8004
+  postgres:
+    type: "ClusterIP"
+    port: 5432
+
+probes:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+resources:
+  postgres:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+storage:
+  storageClass: "standard"
+  size: "10Gi"

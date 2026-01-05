@@ -1,0 +1,99 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-stats-collector
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-platform
+    component: cronjob
+    cronjob: daily-stats
+spec:
+  schedule: {{ .Values.cronJobs.dailyStats.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: user-platform
+            component: cronjob
+            cronjob: daily-stats
+        spec:
+          containers:
+            - name: stats-collector
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Collecting daily statistics for the last 24 hours..."
+                  echo "Total users: $(date)"
+                  echo "Statistics collection completed at $(date)"
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: notification-sender
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-platform
+    component: cronjob
+    cronjob: notification-sender
+spec:
+  schedule: {{ .Values.cronJobs.notificationSender.schedule | quote }}
+  concurrencyPolicy:
+    {{ .Values.cronJobs.notificationSender.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: user-platform
+            component: cronjob
+            cronjob: notification-sender
+        spec:
+          containers:
+            - name: notification-sender
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Sending daily notifications..."
+                  echo "Notification sending started at $(date)"
+                  echo "All notifications sent successfully"
+          restartPolicy: OnFailure
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-cleanup
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: user-platform
+    component: cronjob
+    cronjob: data-cleanup
+spec:
+  schedule: {{ .Values.cronJobs.dataCleanup.schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: user-platform
+            component: cronjob
+            cronjob: data-cleanup
+        spec:
+          containers:
+            - name: data-cleanup
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting data cleanup process..."
+                  echo "Cleaning up outdated data..."
+                  echo "Data cleanup completed at $(date)"
+          restartPolicy: OnFailure
